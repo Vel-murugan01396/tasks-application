@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tasks is the name of the table
+model Tasks {
+  id        String   @id @default(uuid())
+  task      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("tasks")
+}
+
+// model Users {
+//   id          String    @id @default(uuid())
+//   name        String
+//   dateOfBirth DateTime?
+
+//   @@map("user_master")
+// }
