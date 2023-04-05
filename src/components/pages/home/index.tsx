@@ -6,6 +6,16 @@ function HomePageComponent() {
   const [tasks, setTasks] = useState([]);
 
   const onSubmit = (data) => {
+    const task: string = data.task;
+    // const { task } = data;
+    if (!(task.trim().length > 0)) return;
+
+    // a = [{ task: "Task 1", completed: false, id: 1 },
+    // { task: "Task 2", completed: false, id: 2 }]
+    // a[1].task
+    const taskExists = tasks.every((t) => t.task !== task.trim());
+    if (!taskExists) return;
+
     const id = tasks.length + 1;
     const newTask = { ...data, completed: false, id };
 
@@ -25,6 +35,10 @@ function HomePageComponent() {
       updateTask,
       ...tasks.slice(taskIndex + 1),
     ]);
+  };
+
+  const handleTaskDeletion = (id: number) => {
+    setTasks(tasks.filter((t) => t.id !== id));
   };
 
   return (
@@ -65,6 +79,12 @@ function HomePageComponent() {
               >
                 {t.task}
               </label>
+              <button
+                className="font-semibold"
+                onClick={() => handleTaskDeletion(t.id)}
+              >
+                X
+              </button>
             </div>
           ))}
       </div>
