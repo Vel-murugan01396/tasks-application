@@ -1,44 +1,62 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 function HomePageComponent() {
   const { register, handleSubmit } = useForm();
   const [tasks, setTasks] = useState([]);
 
-  const onSubmit = (data) => {
+  useEffect(() => {
+    async function getAllTasks() {
+      const response = await fetch("/api/tasks", {
+        method: "GET",
+      });
+      const data = await response.json();
+      setTasks(data);
+    }
+
+    getAllTasks();
+  }, []);
+
+  // Task creation
+  const onSubmit = async (data) => {
     const task: string = data.task;
     // const { task } = data;
     if (!(task.trim().length > 0)) return;
 
-    // a = [{ task: "Task 1", completed: false, id: 1 },
-    // { task: "Task 2", completed: false, id: 2 }]
-    // a[1].task
-    const taskExists = tasks.every((t) => t.task !== task.trim());
-    if (!taskExists) return;
-
-    const id = tasks.length + 1;
-    const newTask = { ...data, completed: false, id };
-
     // push new task inside tasks array
-    setTasks([...tasks, newTask]);
+    const insertedTaskResponse = await fetch("/api/tasks", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    if (insertedTaskResponse.ok) {
+      const insertedTask = await insertedTaskResponse.json();
+      setTasks([...tasks, insertedTask]);
+    }
   };
 
-  const handleTaskCompletion = (id: number) => {
-    // find index of the task with that specific id
-    const taskIndex = tasks.findIndex((t) => t.id === id);
-    if (taskIndex == -1) return;
+  const handleTaskCompletion = async (id: string) => {
+    const updatedTaskResponse = await fetch(`/api/tasks?id=${id}`, {
+      method: "PUT",
+    });
+    if (updatedTaskResponse.ok) {
+      const updatedTask = await updatedTaskResponse.json();
+      // find index of the task with that specific id
+      const taskIndex = tasks.findIndex((t) => t.id === id);
+      if (taskIndex == -1) return;
 
-    const updateTask = tasks[taskIndex];
-    updateTask.completed = !updateTask.completed;
-    setTasks([
-      ...tasks.slice(0, taskIndex),
-      updateTask,
-      ...tasks.slice(taskIndex + 1),
-    ]);
+      setTasks([
+        ...tasks.slice(0, taskIndex),
+        updatedTask,
+        ...tasks.slice(taskIndex + 1),
+      ]);
+    }
   };
 
-  const handleTaskDeletion = (id: number) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+  const handleTaskDeletion = async (id: string) => {
+    const response = await fetch(`/api/tasks?id=${id}`, { method: "DELETE" });
+    if (response.ok) {
+      setTasks(tasks.filter((t) => t.id !== id));
+    }
   };
 
   return (

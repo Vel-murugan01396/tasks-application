@@ -15,13 +15,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     task,
                 }
             });
-            res.status(200).send(data);
+            res.status(201).send(data);
             break;
         case "PUT":
-            res.status(200).send(`${req.method} Request`);
+            // update a task
+            const { id } = req.query;
+            const existingTask = await prisma.tasks.findFirst({
+                where: {
+                    id: id.toString()
+                }
+            });
+            const updatedTask = await prisma.tasks.update({
+                where: {
+                    id: id.toString(),
+                },
+                data: {
+                    completed: !existingTask.completed
+                }
+            });
+            res.status(200).send(updatedTask);
             break;
         case "DELETE":
-            res.status(200).send(`${req.method} Request`);
+            const { id: taskId } = req.query;
+            await prisma.tasks.delete({
+                where: {
+                    id: taskId.toString(),
+                },
+            });
+            res.status(200).send({ status: true, message: "Task deleted" });
             break;
         default:
             return res.status(405).send("Method not allowed");
