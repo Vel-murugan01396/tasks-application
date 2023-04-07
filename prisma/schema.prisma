@@ -16,6 +16,7 @@ model Tasks {
   task      String
   completed Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
+  email     String
 
   @@map("tasks")
 }
