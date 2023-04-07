@@ -9,6 +9,9 @@ function HomePageComponent() {
     async function getAllTasks() {
       const response = await fetch("/api/tasks", {
         method: "GET",
+        headers: {
+          "Access-Control-Allow-Credentials": "true",
+        },
       });
       const data = await response.json();
       setTasks(data);
